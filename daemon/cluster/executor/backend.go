@@ -48,7 +48,7 @@ type Backend interface {
 	SetContainerDependencyStore(name string, store exec.DependencyGetter) error
 	SetContainerSecretReferences(name string, refs []*swarmtypes.SecretReference) error
 	SetContainerConfigReferences(name string, refs []*swarmtypes.ConfigReference) error
-	SystemInfo() (*types.Info, error)
+	SystemInfo() *types.Info
 	Containers(config *types.ContainerListOptions) ([]*types.Container, error)
 	SetNetworkBootstrapKeys([]*networktypes.EncryptionKey) error
 	DaemonJoinsCluster(provider cluster.Provider)
@@ -61,6 +61,7 @@ type Backend interface {
 	PluginManager() *plugin.Manager
 	PluginGetter() *plugin.Store
 	GetAttachmentStore() *networkSettings.AttachmentStore
+	HasExperimental() bool
 }
 
 // VolumeBackend is used by an executor to perform volume operations

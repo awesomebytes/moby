@@ -72,11 +72,13 @@ func (e ChainError) Error() string {
 }
 
 func probe() {
-	if out, err := exec.Command("modprobe", "-va", "nf_nat").CombinedOutput(); err != nil {
-		logrus.Warnf("Running modprobe nf_nat failed with message: `%s`, error: %v", strings.TrimSpace(string(out)), err)
+	path, err := exec.LookPath("iptables")
+	if err != nil {
+		logrus.Warnf("Failed to find iptables: %v", err)
+		return
 	}
-	if out, err := exec.Command("modprobe", "-va", "xt_conntrack").CombinedOutput(); err != nil {
-		logrus.Warnf("Running modprobe xt_conntrack failed with message: `%s`, error: %v", strings.TrimSpace(string(out)), err)
+	if out, err := exec.Command(path, "--wait", "-t", "nat", "-L", "-n").CombinedOutput(); err != nil {
+		logrus.Warnf("Running iptables --wait -t nat -L -n failed with message: `%s`, error: %v", strings.TrimSpace(string(out)), err)
 	}
 }
 
@@ -87,16 +89,11 @@ func initFirewalld() {
 }
 
 func detectIptables() {
-	path, err := exec.LookPath("iptables-legacy") // debian has iptables-legacy and iptables-nft now
+	path, err := exec.LookPath("iptables")
 	if err != nil {
-		path, err = exec.LookPath("iptables")
-		if err != nil {
-			return
-		}
+		return
 	}
-
 	iptablesPath = path
-
 	supportsXlock = exec.Command(iptablesPath, "--wait", "-L", "-n").Run() == nil
 	mj, mn, mc, err := GetVersion()
 	if err != nil {
@@ -147,6 +144,19 @@ func NewChain(name string, table Table, hairpinMode bool) (*ChainInfo, error) {
 func ProgramChain(c *ChainInfo, bridgeName string, hairpinMode, enable bool) error {
 	if c.Name == "" {
 		return errors.New("Could not program chain, missing chain name")
+	}
+
+	// Either add or remove the interface from the firewalld zone
+	if firewalldRunning {
+		if enable {
+			if err := AddInterfaceFirewalld(bridgeName); err != nil {
+				return err
+			}
+		} else {
+			if err := DelInterfaceFirewalld(bridgeName); err != nil {
+				return err
+			}
+		}
 	}
 
 	switch c.Table {
