@@ -304,8 +304,8 @@ func (daemon *Daemon) ContainerExecStart(ctx context.Context, name string, stdin
 }
 
 // ContainerExecKill kills an exec instance.
-func (d *Daemon) ContainerExecKill(ctx context.Context, name string, sig uint64) error {
-	e, err := d.getExecConfig(name)
+func (daemon *Daemon) ContainerExecKill(ctx context.Context, name string, sig uint64) error {
+	e, err := daemon.getExecConfig(name)
 	if err != nil {
 		return err
 	}
@@ -319,7 +319,7 @@ func (d *Daemon) ContainerExecKill(ctx context.Context, name string, sig uint64)
 		sig = uint64(signal.SignalMap["KILL"])
 	}
 
-	return d.containerd.SignalProcess(ctx, e.ContainerID, name, int(sig))
+	return daemon.containerd.SignalProcess(ctx, e.ContainerID, name, int(sig))
 }
 
 // execCommandGC runs a ticker to clean up the daemon references
