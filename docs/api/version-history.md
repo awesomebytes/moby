@@ -24,6 +24,7 @@ keywords: "API, Docker, rcli, REST, documentation"
 * `GET /images/json` now accepts query parameter `shared-size`. When set `true`,
   images returned will include `SharedSize`, which provides the size on disk shared
   with other images present on the system.
+* `POST /exec/{id}/kill` is a new endpoint that can be used for sending a signal to kill an exec instance.
 
 ## v1.41 API changes
 
@@ -101,7 +102,6 @@ keywords: "API, Docker, rcli, REST, documentation"
 
 [Docker Engine API v1.40](https://docs.docker.com/engine/api/v1.40/) documentation
 
-* `POST /exec/{id}/kill` is a new endpoint that can be used for sending a signal to kill an exec instance.
 * The `/_ping` endpoint can now be accessed both using `GET` or `HEAD` requests.
   when accessed using a `HEAD` request, all headers are returned, but the body
   is empty (`Content-Length: 0`). This change is not versioned, and affects all
