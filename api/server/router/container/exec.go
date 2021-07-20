@@ -160,7 +160,7 @@ func (s *containerRouter) postContainerExecResize(ctx context.Context, w http.Re
 func (s *containerRouter) postContainerExecKill(ctx context.Context, w http.ResponseWriter, r *http.Request, vars map[string]string) error {
 	version := httputils.VersionFromContext(ctx)
 	if versions.LessThan(version, "1.42") {
-		return errdefs.InvalidParameter(fmt.Errorf("postContainerExecKill requires API version 1.42, but the Docker daemon API version is %s", version))
+		return errdefs.InvalidParameter(fmt.Errorf("exec kill requires API version 1.42, but the Docker daemon API version is %s", version))
 	}
 	if err := httputils.ParseForm(r); err != nil {
 		return errdefs.InvalidParameter(err)
